@@ -117,21 +117,57 @@ UNION
 
 UNION
 
-        /* related procedure / relation changed  */
+       /* related acquisition / placering / media */
         SELECT
         
-                hierarchy_relation.name   AS csid,
+                relations_common.subjectcsid   AS csid,
                 MAX (collectionspace_core.updatedat)   AS updatedat
         
         FROM public.collectionspace_core
         
         LEFT JOIN public.hierarchy hierarchy_relation ON hierarchy_relation.id = collectionspace_core.id
+        LEFT JOIN public.relations_common ON hierarchy_relation.name = relations_common.objectcsid AND relations_common.subjectdocumenttype = 'CollectionObject'
         
         WHERE collectionspace_core.tenantid = 5
                 AND collectionspace_core.updatedat &gt; '${dih.last_index_time}'
         
         GROUP BY csid
         
+UNION        
+        /* related as object */
+        SELECT
+        
+                relations_common.objectcsid   AS csid,
+                MAX (collectionspace_core.updatedat)   AS updatedat
+       
+        FROM public.collectionspace_core
+        
+        LEFT JOIN public.relations_common ON relations_common.id = collectionspace_core.id AND relations_common.subjectdocumenttype = 'CollectionObject' 
+        
+        WHERE collectionspace_core.tenantid = 5
+                AND collectionspace_core.updatedat &gt; '${dih.last_index_time}'              
+        
+        GROUP BY csid    
+        
+ UNION        
+        
+        /* related as subject */
+        SELECT
+        
+                relations_common.subjectcsid   AS csid,
+                MAX (collectionspace_core.updatedat)   AS updatedat
+       
+        FROM public.collectionspace_core
+        
+        LEFT JOIN public.relations_common ON relations_common.id = collectionspace_core.id AND relations_common.subjectdocumenttype = 'CollectionObject' 
+        
+        WHERE collectionspace_core.tenantid = 5
+                AND collectionspace_core.updatedat &gt; '${dih.last_index_time}'               
+        
+        GROUP BY csid  
+        
 ) AS modif
+
+WHERE modif.csid IS NOT NULL 
 
 GROUP BY csid

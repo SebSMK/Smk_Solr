@@ -3,6 +3,7 @@ SELECT
 collectionobjects_common.objectnumber                                 AS id,
 
 smkstructureddatesmkgroup_obj_acq_date.datesmkdisplaytext             AS acq_date,
+smkstructureddatesmkgroup_obj_acq_date.datesmkdisplayengtext          AS acq_date_eng,
 acquisitions_common.acquisitionnote                                   AS acq_note,
 acquisitions_common.acquisitionreason                                 AS acq_reason,
 vocabularyitems_common_acq.displayname                                AS acq_method,
@@ -38,6 +39,7 @@ vocabularyitems_common_insurance_curr.displayname                     AS insur_c
 littref.litt_references                                               AS litt_references,
 location.location_date                                                AS location_date,
 location.location_name                                                AS location_name,
+location.location_note                                                AS location_note,
 collectionobjects_common.copynumber                                   AS location_kks_kas,
 core.updatedat                                                        AS last_update,
 
@@ -75,7 +77,6 @@ sikkerhed.status                                                      AS sikkerh
 shape.displayname                                                     AS shape,
 
 title_all.title_all                                                   AS title_all,
-title_translate.title_translate                                       AS title_translate,
 techniquearticle.techniquearticle                                     AS techniquearticle,
 topografisk_motiv                                                     AS topografisk_motiv,
 
@@ -550,19 +551,59 @@ LEFT JOIN(
 
         FROM(
                 SELECT
-                object_hierarchy0.objid as objid,
+                object_hierarchy0.objid AS objid,
                 string_agg(                        
-                         format('%s;--;%s;--;%s',
+                         format('%s;--;%s;--;%s;--;%s',                                
                                 smktitlegroup.smktitle,
                                 smktitlegroup.smktitlenote,
-                                smktitlegroup.smktitlelanguage),                                        
+                                smktitlegroup.smktitlelanguage,
+                                title_translate.title_translate),                                        
                         ';-;') 
                  AS title_all
 
                 FROM public.object_hierarchy0
         
-                LEFT JOIN smktitlegroup ON object_hierarchy0.primarytype_id = smktitlegroup.id 
-                        
+                LEFT JOIN smktitlegroup ON object_hierarchy0.primarytype_id = smktitlegroup.id
+
+                LEFT JOIN(                                
+                                SELECT 
+                                parentid,                                
+                                string_agg(title_translate, ';---;') AS title_translate
+                                
+                                FROM(
+                                        SELECT
+                                        hierarchy_title_translate.parentid,                                                   
+                                        
+                                        string_agg(
+                                                format('%s;-v;%s',
+                                                smktitletranslationsubgroup.smktitletranslation,
+                                                smktitletranslationsubgroup.smktitletranslationlanguage
+                                                ),                                        
+                                        ';---;')  AS title_translate,
+                                        
+                                        string_agg(hierarchy_title_translate.pos,'xxx')
+                                
+                                        FROM public.object_hierarchy0
+                                        
+                                        LEFT JOIN public.hierarchy hierarchy_title_translate ON object_hierarchy0.primarytype_id = hierarchy_title_translate.parentid                
+                                        LEFT JOIN public.smktitletranslationsubgroup smktitletranslationsubgroup ON smktitletranslationsubgroup.id = hierarchy_title_translate.id 
+                                
+                                        WHERE object_hierarchy0.primarytype = 'smkTitleGroup'                 
+                                                AND object_hierarchy0.csid = '${objects.csid}'                                         
+                                
+                                        GROUP BY
+                                                hierarchy_title_translate.parentid,
+                                                hierarchy_title_translate.pos
+                                                
+                                        ORDER BY                                          
+                                                 hierarchy_title_translate.parentid,
+                                                 hierarchy_title_translate.pos ASC
+                                ) AS sub_translate
+                                
+                                GROUP BY parentid                                
+
+                ) AS title_translate ON object_hierarchy0.primarytype_id = title_translate.parentid 
+      
                 WHERE object_hierarchy0.primarytype = 'smkTitleGroup'                 
                         AND object_hierarchy0.csid = '${objects.csid}'  
         
@@ -573,38 +614,12 @@ LEFT JOIN(
                 ORDER BY object_hierarchy0.pos ASC
                                       
         ) AS sub_title
-
+        
         GROUP BY objid
 
 ) AS title_all
 
 ON collectionobjects_common.id = title_all.objid
-
-/* title's translations */
-LEFT JOIN(
-        SELECT
-        object_hierarchy0.objid as objid,
-        string_agg(                        
-                 format('%s;--;%s',
-                        smktitletranslationsubgroup.smktitletranslation,
-                        smktitletranslationsubgroup.smktitletranslationlanguage),                                        
-                ';-;') 
-                 AS title_translate
-
-        FROM public.object_hierarchy0
-        
-        LEFT JOIN public.hierarchy hierarchy_title_translate ON object_hierarchy0.primarytype_id = hierarchy_title_translate.parentid                
-        LEFT JOIN public.smktitletranslationsubgroup smktitletranslationsubgroup ON smktitletranslationsubgroup.id = hierarchy_title_translate.id 
-
-        WHERE object_hierarchy0.primarytype = 'smkTitleGroup'                 
-                AND object_hierarchy0.csid = '${objects.csid}'  
-
-        GROUP BY
-                object_hierarchy0.objid
-
-) AS title_translate
-
-ON collectionobjects_common.id = title_translate.objid
 
 /* - dimensions -*/
 
@@ -641,7 +656,7 @@ LEFT JOIN (
                 LEFT JOIN public.dimensionsubgroup dimensionsubgroup_all_hojde ON hierarchy_meas_all.id = dimensionsubgroup_all_hojde.id AND dimensionsubgroup_all_hojde.dimension = 'hojde'
                 LEFT JOIN public.dimensionsubgroup dimensionsubgroup_all_bredde ON hierarchy_meas_all.id = dimensionsubgroup_all_bredde.id AND dimensionsubgroup_all_bredde.dimension = 'bredde'
                 LEFT JOIN public.dimensionsubgroup dimensionsubgroup_all_dybde ON hierarchy_meas_all.id = dimensionsubgroup_all_dybde.id AND dimensionsubgroup_all_dybde.dimension = 'dybde'
-                LEFT JOIN public.dimensionsubgroup dimensionsubgroup_all_vaegt ON hierarchy_meas_all.id = dimensionsubgroup_all_vaegt.id AND dimensionsubgroup_all_vaegt.dimension = 'vegt'
+                LEFT JOIN public.dimensionsubgroup dimensionsubgroup_all_vaegt ON hierarchy_meas_all.id = dimensionsubgroup_all_vaegt.id AND dimensionsubgroup_all_vaegt.dimension = 'vaegt'
                 LEFT JOIN public.dimensionsubgroup dimensionsubgroup_all_diameter ON hierarchy_meas_all.id = dimensionsubgroup_all_diameter.id AND dimensionsubgroup_all_diameter.dimension = 'diameter'
 
                 WHERE object_hierarchy0.primarytype = 'measuredPartGroup'                 
@@ -650,7 +665,8 @@ LEFT JOIN (
                 GROUP BY
                         object_hierarchy0.objid,
                         object_hierarchy0.primarytype_id,
-                        measuredpartgroup_all.measuredpart
+                        measuredpartgroup_all.measuredpart                
+                
         ) AS sub_dim   
         
         GROUP BY sub_dim.objectid                
@@ -785,7 +801,7 @@ ON collectionobjects_common.id = citations.objectid
 
                 FROM public.object_hierarchy0
                 
-                LEFT JOIN contenteventnamegroup ON object_hierarchy0.primarytype_id = contenteventnamegroup.id AND contenteventnamegroup.contenteventnametype LIKE 'Litter_rt forl_g'                        
+                LEFT JOIN contenteventnamegroup ON object_hierarchy0.primarytype_id = contenteventnamegroup.id                     
 
                 WHERE object_hierarchy0.primarytype = 'contentEventNameGroup'                 
                         AND object_hierarchy0.csid = '${objects.csid}' 
@@ -901,7 +917,6 @@ LEFT JOIN public.vocabularyitems_common vocabularyitems_format ON vocabularyitem
 
                 collectionobjects_common.id AS objectid,
                 string_agg(placetermgroup.termdisplayname,';-;') AS topografisk_motiv
-
 
                 FROM public.collectionobjects_common collectionobjects_common
 
@@ -1407,6 +1422,7 @@ GROUP BY
                 littref.litt_references  ,
                 location.location_date ,
                 location.location_name  ,
+                location.location_note ,
 
                 materiale.materiale,
                 media.externalurl ,
@@ -1430,10 +1446,10 @@ GROUP BY
                 
                 shape.displayname,
                 smkstructureddatesmkgroup_obj_acq_date.datesmkdisplaytext ,
+                smkstructureddatesmkgroup_obj_acq_date.datesmkdisplayengtext,
                 sikkerhed.status,
 
                 title_all.title_all,
-                title_translate.title_translate,
                 techniquearticle.techniquearticle,
                 topografisk_motiv,
 
@@ -1444,6 +1460,4 @@ GROUP BY
                 vocabularyitems_format.displayname,
                 vaerkstatus.vaerkstatus
 
-ORDER BY collectionobjects_common.objectnumber
-
-        
+ORDER BY collectionobjects_common.objectnumber        
