@@ -360,52 +360,28 @@ INNER JOIN public.hierarchy hierarchy0 ON (collectionobjects_common.id = hierarc
                         object_hierarchy0.objid AS objectid,
                         object_hierarchy0.pos,                                                
                         
-                        format ('person;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s' ,
+                         format ('person;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s;--;%s' ,
                                                                         
                                 vocabularyitems_common_art_producent.displayname,
                                 
                                 (persontermgroup_producent.termdisplayname),                                                        
         
-                                CASE WHEN (smkstructureddatesmkgroup_producent_birth.datesmkthirddateyear) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_birth.datesmkthirddateyear
-                                END,
+                                smkstructureddatesmkgroup_producent_birth.datesmkthirddateyear,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_birth.datesmkdisplaytext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_birth.datesmkdisplaytext
-                                END,
+                               	smkstructureddatesmkgroup_producent_birth.datesmkdisplaytext,
         
-                                CASE WHEN (smkstructureddatesmkgroup_producent_birth.datesmkdisplayengtext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_birth.datesmkdisplayengtext
-                                END,
+                               	smkstructureddatesmkgroup_producent_birth.datesmkdisplayengtext,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_death.datesmkthirddateyear) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_death.datesmkthirddateyear
-                                END,
+                                smkstructureddatesmkgroup_producent_death.datesmkthirddateyear,
         
-                                CASE WHEN (smkstructureddatesmkgroup_producent_death.datesmkdisplaytext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_death.datesmkdisplaytext
-                                END,
+                                smkstructureddatesmkgroup_producent_death.datesmkdisplaytext,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_death.datesmkdisplayengtext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_death.datesmkdisplayengtext
-                                END,
+                                smkstructureddatesmkgroup_producent_death.datesmkdisplayengtext,
         
-                                CASE WHEN (vocabularyitems_common_producent.displayname) IS NULL
-                                THEN '(?)'
-                                ELSE initcap(vocabularyitems_common_producent.displayname)
-                                END,
+                                initcap(vocabularyitems_common_producent.displayname),
                                 
-                                CASE WHEN (vocabularyitems_common_producent.description) IS NULL
-                                THEN ''
-                                ELSE initcap(vocabularyitems_common_producent.description)
-                                END                                                
-                        
+                                initcap(vocabularyitems_common_producent.description)
+                                                                                                        
                         )
                         AS producents_data
         
@@ -463,35 +439,17 @@ INNER JOIN public.hierarchy hierarchy0 ON (collectionobjects_common.id = hierarc
                                 vocabularyitems_common_art_producent.displayname,
                                 org_name.termdisplayname,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_org_creation.datesmkthirddateyear) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_org_creation.datesmkthirddateyear
-                                END,
+                                smkstructureddatesmkgroup_producent_org_creation.datesmkthirddateyear,
         
-                                CASE WHEN (smkstructureddatesmkgroup_producent_org_creation.datesmkdisplaytext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_org_creation.datesmkdisplaytext
-                                END,
+                                smkstructureddatesmkgroup_producent_org_creation.datesmkdisplaytext,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_org_creation.datesmkdisplayengtext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_org_creation.datesmkdisplayengtext
-                                END,
+                                smkstructureddatesmkgroup_producent_org_creation.datesmkdisplayengtext,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_org_dissolution.datesmkthirddateyear) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_org_dissolution.datesmkthirddateyear
-                                END,
+                                smkstructureddatesmkgroup_producent_org_dissolution.datesmkthirddateyear,
         
-                                CASE WHEN (smkstructureddatesmkgroup_producent_org_dissolution.datesmkdisplaytext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_org_dissolution.datesmkdisplaytext
-                                END,
+                                smkstructureddatesmkgroup_producent_org_dissolution.datesmkdisplaytext,
                                 
-                                CASE WHEN (smkstructureddatesmkgroup_producent_org_dissolution.datesmkdisplayengtext) IS NULL
-                                THEN '(?)'
-                                ELSE smkstructureddatesmkgroup_producent_org_dissolution.datesmkdisplayengtext
-                                END
+                                smkstructureddatesmkgroup_producent_org_dissolution.datesmkdisplayengtext
                          )
                            
                         AS producents_data
