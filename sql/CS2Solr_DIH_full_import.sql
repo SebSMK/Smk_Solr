@@ -55,6 +55,7 @@ collectionobjects_finearts.faorientationdescription                   AS opstill
 collectionobjects_common.objectnumber                                 AS objectnumber,
 object_all_production_dates.production_dates                          AS object_all_production_dates,
 objectproductionnote.objectproductionnote                             AS object_production_note,
+production_place.production_place                                     AS object_production_place,
 concepttermgroup.termdisplayname                                      AS object_type,
 objbriefdescriptions.objbriefdescriptions                             AS object_briefdescriptions,
 objectophavsbeskrivelse.objectophavsbeskrivelse                       AS objectophavsbeskrivelse,
