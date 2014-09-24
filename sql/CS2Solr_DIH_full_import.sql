@@ -3,6 +3,8 @@ SELECT
 collectionobjects_common.objectnumber                                 AS id,
 
 smkstructureddatesmkgroup_obj_acq_date.datesmkdisplaytext             AS acq_date,
+smkstructureddatesmkgroup_obj_acq_date.datesmkearliestscalarvalue	AS acq_date_earliest,
+smkstructureddatesmkgroup_obj_acq_date.datesmklatestscalarvalue		AS acq_date_latest,
 smkstructureddatesmkgroup_obj_acq_date.datesmkdisplayengtext          AS acq_date_eng,
 acquisitions_common.acquisitionnote                                   AS acq_note,
 acquisitions_common.acquisitionreason                                 AS acq_reason,
@@ -54,6 +56,8 @@ collectionobjects_finearts.faorientationremarks                       AS note_el
 collectionobjects_finearts.faorientationdescription                   AS opstilling,
 collectionobjects_common.objectnumber                                 AS objectnumber,
 object_all_production_dates.production_dates                          AS object_all_production_dates,
+object_all_production_dates.datesmkearliestscalarvalue				AS object_production_date_earliest,
+object_all_production_dates.datesmklatestscalarvalue				AS object_production_date_latest,
 objectproductionnote.objectproductionnote                             AS object_production_note,
 production_place.production_place                                     AS object_production_place,
 concepttermgroup.termdisplayname                                      AS object_type,
@@ -222,12 +226,15 @@ INNER JOIN public.hierarchy hierarchy0 ON (collectionobjects_common.id = hierarc
 
                 object_hierarchy0.objid AS objectid,
                 string_agg(
-                        format('%s;--;%s;--;%s;--;%s',                                                         
+                        format('%s;--;%s;--;%s;--;%s;--;%s',                                                         
                                 voc_qual.displayname,
                                 smkstructureddatesmkgroup_obj_prod_date.datesmkdisplaytext,
                                 smkstructureddatesmkgroup_obj_prod_date.datesmkearliestscalarvalue,
-                                smkstructureddatesmkgroup_obj_prod_date.datesmklatestscalarvalue) 
-                 ,';-;') AS production_dates
+                                smkstructureddatesmkgroup_obj_prod_date.datesmklatestscalarvalue,
+                                smkstructureddatesmkgroup_obj_prod_date.datesmkdisplayengtext) 
+                 ,';-;') AS production_dates,
+                 smkstructureddatesmkgroup_obj_prod_date.datesmkearliestscalarvalue,
+                 smkstructureddatesmkgroup_obj_prod_date.datesmklatestscalarvalue
 
                 FROM public.object_hierarchy0
                 
@@ -240,7 +247,9 @@ INNER JOIN public.hierarchy hierarchy0 ON (collectionobjects_common.id = hierarc
                         AND object_hierarchy0.csid = '${objects.csid}'  
 
                 GROUP BY
-                        object_hierarchy0.objid              
+                        object_hierarchy0.objid,
+                        smkstructureddatesmkgroup_obj_prod_date.datesmkearliestscalarvalue,
+                 		smkstructureddatesmkgroup_obj_prod_date.datesmklatestscalarvalue
 
         ) AS object_all_production_dates
 
@@ -1394,6 +1403,8 @@ GROUP BY
                 objectophavsbeskrivelse.objectophavsbeskrivelse,
                 other_numbers.other_numbers,
                 object_all_production_dates.production_dates ,
+                object_all_production_dates.datesmkearliestscalarvalue,
+				object_all_production_dates.datesmklatestscalarvalue,
                 
                 proveniens.proveniens   ,
                 portrait_person.portrait_person,
@@ -1406,6 +1417,8 @@ GROUP BY
                 shape.displayname,
                 smkstructureddatesmkgroup_obj_acq_date.datesmkdisplaytext ,
                 smkstructureddatesmkgroup_obj_acq_date.datesmkdisplayengtext,
+                smkstructureddatesmkgroup_obj_acq_date.datesmkearliestscalarvalue,
+				smkstructureddatesmkgroup_obj_acq_date.datesmklatestscalarvalue,	
                 sikkerhed.status,
 
                 title_all.title_all,
